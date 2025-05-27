@@ -20,11 +20,20 @@ func _ready():
 	if background_sprite and background_sprite.texture:
 		var texture_size = background_sprite.texture.get_size()
 		if texture_size.x > 0 and texture_size.y > 0: # Prevent division by zero
-			background_sprite.scale.x = screenSize.x / texture_size.x
-			background_sprite.scale.y = screenSize.y / texture_size.y
+			var screen_aspect = screenSize.x / screenSize.y
+			var texture_aspect = texture_size.x / texture_size.y
+			
+			var scale_factor = 0.0
+			if (screen_aspect > texture_aspect): # Screen is wider than texture (or texture is taller)
+				scale_factor = screenSize.x / texture_size.x # Fit to width
+			else: # Screen is taller than texture (or texture is wider)
+				scale_factor = screenSize.y / texture_size.y # Fit to height
+			
+			background_sprite.scale = Vector2(scale_factor, scale_factor)
 		else:
-			push_error("Background texture has zero size in one or both dimensions.")
+			push_error("Background texture has zero size in one or both dimensions: %s" % texture_size)
 		background_sprite.position = screenSize / 2 # Center the sprite
+		background_sprite.z_index = -10 # Ensure it's behind other elements
 	elif not background_sprite:
 		push_error("Background node ($Background) not found. Check the path in main.gd.")
 	elif not background_sprite.texture:
