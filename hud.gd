@@ -15,6 +15,12 @@ var barTextures = {
 }
 
 func updateShield(value):
+	if not is_node_ready() or shieldBar == null:
+		await ready # Wait until the node is ready
+	if shieldBar == null: # Check again after waiting
+		push_error("ShieldBar node not found in HUD after ready.")
+		return
+
 	shieldBar.texture_progress = barTextures["green"]
 	if value < 0.4:
 		shieldBar.texture_progress = barTextures["red"]
