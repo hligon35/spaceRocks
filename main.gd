@@ -2,10 +2,11 @@ extends Node
 
 signal startGame
 
-@export var rockScene : PackedScene
-@export var enemyScene : PackedScene
+@export var rockScene: PackedScene
+@export var enemyScene: PackedScene
 
 @onready var startButton = $HUD/StartButton
+@onready var background_sprite = $Background # Added for background scaling
 
 var screenSize = Vector2.ZERO
 var level = 0
@@ -15,6 +16,21 @@ var playing = false
 func _ready():
 	#randomize()
 	screenSize = get_viewport().get_visible_rect().size
+
+	if background_sprite and background_sprite.texture:
+		var texture_size = background_sprite.texture.get_size()
+		if texture_size.x > 0 and texture_size.y > 0: # Prevent division by zero
+			background_sprite.scale.x = screenSize.x / texture_size.x
+			background_sprite.scale.y = screenSize.y / texture_size.y
+		else:
+			push_error("Background texture has zero size in one or both dimensions.")
+		background_sprite.position = screenSize / 2 # Center the sprite
+	elif not background_sprite:
+		push_error("Background node ($Background) not found. Check the path in main.gd.")
+	elif not background_sprite.texture:
+		push_error("Texture not assigned to the Background node ($Background).")
+
+
 	for i in range(3):
 		spawnRock(3)
 
