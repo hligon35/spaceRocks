@@ -4,7 +4,7 @@ signal livesChanged
 signal shieldChanged
 signal dead
 
-@export var bulletScene : PackedScene
+@export var bulletScene: PackedScene
 @export var enginePower = 500
 @export var spinPower = 8000
 @export var fireRate = 0.25
@@ -25,6 +25,7 @@ func _ready():
 	changeState(INIT)
 	screenSize = get_viewport_rect().size
 	$GunCoolDown.wait_time = fireRate
+	shield = maxShield # Ensure shield is full on load
 
 func setShield(value):
 	value = min(value, maxShield)
@@ -70,9 +71,9 @@ func changeState(newState):
 			dead.emit()
 	state = newState
 
-func _process(delta):
+func _process(_delta):
 	getInput()
-	shield += shieldRegen * delta
+	shield += shieldRegen * _delta
 
 func getInput():
 	thrust = Vector2.ZERO
@@ -100,7 +101,7 @@ func shoot():
 	b.start($Muzzle.global_transform)
 	$LaserSound.play()
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	constant_force = thrust
 	constant_torque = rotationDir * spinPower
 
